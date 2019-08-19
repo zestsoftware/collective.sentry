@@ -5,7 +5,7 @@ Changelog
 0.1.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add SENTRY_TAGS_JSON environment variable to set extra tags like release or environment. [fredvd]
 
 
 0.1 (2019/08/15)

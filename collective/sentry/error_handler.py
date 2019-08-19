@@ -4,6 +4,7 @@
 # The code below is heavily based on the raven.contrib. zope module
 
 import os
+import json
 import logging
 import sentry_sdk
 
@@ -20,6 +21,16 @@ if not sentry_dsn:
     raise RuntimeError("Environment variable SENTRY_DSN not configured")
 
 sentry_project = os.environ.get("SENTRY_PROJECT")
+
+sentry_tags = None
+try:
+    sentry_tags = json.loads(os.environ.get("SENTRY_TAGS_JSON", None))
+except json.decoder.JSONDecodeError:
+    raise RuntimeError("Environment variable SENTRY_TAGS_JSON contains invalid json")
+if sentry_tags:
+    for (k,v) in sentry_tags.items():
+        if isinstance(v, (dict, list)):
+            del sentry_tags[k]
 
 
 def _before_send(event, hint):
@@ -108,7 +119,9 @@ with sentry_sdk.configure_scope() as scope:
         scope.set_tag(k, v)
     if sentry_project:
         scope.set_tag("project", sentry_project)
-
+    if tags:
+        for (tag,value) in tags.items():
+            scope.set_tag(tag, value)
 
 logging.info("Sentry integration enabled")
 
