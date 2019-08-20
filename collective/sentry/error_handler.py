@@ -24,9 +24,10 @@ sentry_project = os.environ.get("SENTRY_PROJECT")
 
 sentry_tags = None
 try:
-    sentry_tags = json.loads(os.environ.get("SENTRY_TAGS_JSON", None))
-except json.decoder.JSONDecodeError:
-    raise RuntimeError("Environment variable SENTRY_TAGS_JSON contains invalid json")
+    sentry_tags_env = os.environ.get("SENTRY_TAGS_JSON", None)
+    sentry_tags = json.loads(sentry_tags_env)
+except json.decoder.JSONDecodeError as err:
+    raise RuntimeError("Environment variable SENTRY_TAGS_JSON contains invalid json: {err} in {sentry_tags_env}.")
 if sentry_tags:
     for (k,v) in sentry_tags.items():
         if isinstance(v, (dict, list)):
